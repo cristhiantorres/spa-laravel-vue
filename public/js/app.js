@@ -1950,31 +1950,116 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+
+
+var getUsers = function getUsers(page, callback) {
+  var params = {
+    page: page
+  };
+  axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/users', {
+    params: params
+  }).then(function (response) {
+    callback(null, response.data);
+  })["catch"](function (error) {
+    callback(error, error.response.data);
+  });
+};
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       loading: false,
       users: null,
+      meta: null,
+      links: {
+        first: null,
+        last: null,
+        next: null,
+        prev: null
+      },
       error: null
     };
   },
-  created: function created() {
-    this.fetchData();
+  beforeRouteEnter: function beforeRouteEnter(to, from, next) {
+    var params = {
+      page: to.query.page
+    };
+    getUsers(to.query.page, function (err, data) {
+      next(function (vm) {
+        return vm.setData(err, data);
+      });
+    });
+  },
+  beforeRouteUpdate: function beforeRouteUpdate(to, from, next) {
+    var _this = this;
+
+    this.users = this.links = this.meta = null;
+    getUsers(to.query.page, function (err, data) {
+      _this.setData(err, data);
+
+      next();
+    });
+  },
+  computed: {
+    nextPage: function nextPage() {
+      if (!this.meta || this.meta.current_page === this.meta.last_page) {
+        return;
+      }
+
+      return this.meta.current_page + 1;
+    },
+    prevPage: function prevPage() {
+      if (!this.meta || this.meta.current_page === 1) {
+        return;
+      }
+
+      return this.meta.current_page - 1;
+    },
+    paginationCount: function paginationCount() {
+      if (!this.meta) {
+        return;
+      }
+
+      var _this$meta = this.meta,
+          current_page = _this$meta.current_page,
+          last_page = _this$meta.last_page;
+      return "".concat(current_page, " of ").concat(last_page);
+    }
   },
   methods: {
-    fetchData: function fetchData() {
-      var _this = this;
-
-      this.error = this.users = null;
-      this.loading = true;
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/users').then(function (response) {
-        _this.loading = false;
-        _this.users = response.data.data;
-      })["catch"](function (error) {
-        _this.loading = false;
-        _this.error = error.response.data.message || error.message;
+    goToNext: function goToNext() {
+      this.$router.push({
+        query: {
+          page: this.nextPage
+        }
       });
+    },
+    goToPrev: function goToPrev() {
+      this.$router.push({
+        name: 'users.index',
+        query: {
+          page: this.prevPage
+        }
+      });
+    },
+    setData: function setData(err, _ref) {
+      var users = _ref.data,
+          links = _ref.links,
+          meta = _ref.meta;
+
+      if (err) {
+        this.error = err.toString();
+      } else {
+        this.users = users;
+        this.links = links;
+        this.meta = meta;
+      }
     }
   }
 });
@@ -2599,7 +2684,37 @@ var render = function() {
           }),
           0
         )
-      : _vm._e()
+      : _vm._e(),
+    _vm._v(" "),
+    _c("div", { staticClass: "pagination" }, [
+      _c(
+        "button",
+        {
+          attrs: { disabled: !_vm.prevPage },
+          on: {
+            click: function($event) {
+              $event.preventDefault()
+              return _vm.goToPrev($event)
+            }
+          }
+        },
+        [_vm._v("Previous")]
+      ),
+      _vm._v("\n    " + _vm._s(_vm.paginationCount) + "\n    "),
+      _c(
+        "button",
+        {
+          attrs: { disabled: !_vm.nextPage },
+          on: {
+            click: function($event) {
+              $event.preventDefault()
+              return _vm.goToNext($event)
+            }
+          }
+        },
+        [_vm._v("Next")]
+      )
+    ])
   ])
 }
 var staticRenderFns = []
