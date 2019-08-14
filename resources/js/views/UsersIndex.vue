@@ -1,8 +1,8 @@
 <template>
   <div class="users">
     
-    <div class="loading" v-if="loading">
-      Loading...
+    <div v-if="! users" class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
     </div>
 
     <div class="error" v-if="error">
@@ -13,18 +13,29 @@
         </button>
       </p>
     </div>
+    <table v-if="users" class="table table-sm table-bordered">
+      
+      <thead class="thead-dark">
+        <th>Name</th>
+        <th>Email</th>
+        <th></th>
+      </thead>
 
-    <ul v-if="users">
-      <li v-for="{ id, name, email } in users" :key="id">
-          <strong>Name: </strong> {{ name }}
-          <strong>Email: </strong> {{ email }}
-      </li>
-    </ul>
+      <tbody>
+        <tr v-for="{ id, name, email } in users" :key="id">
+          <td>{{ name }}</td>
+          <td>{{ email }}</td>
+          <td>
+            <router-link :to="{ name: 'users.edit', params: { id } }">Edit</router-link>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <div class="pagination">
-      <button :disabled="!prevPage" @click.prevent="goToPrev">Previous</button>
-      {{ paginationCount }}
-      <button :disabled="!nextPage" @click.prevent="goToNext">Next</button>
+      <button :disabled="!prevPage" class="btn btn-primary" @click.prevent="goToPrev">Previous</button>
+      <span class="m-2">{{ paginationCount }}</span>
+      <button :disabled="!nextPage" class="btn btn-primary" @click.prevent="goToNext">Next</button>
     </div>
   </div>
 </template>
@@ -89,7 +100,7 @@ export default {
       if (! this.meta || this.meta.current_page === this.meta.last_page) {
         return;
       }
-
+      
       return this.meta.current_page + 1;
     },
 
@@ -97,7 +108,6 @@ export default {
       if (! this.meta || this.meta.current_page === 1) {
         return;
       }
-
       return this.meta.current_page - 1;
     },
 

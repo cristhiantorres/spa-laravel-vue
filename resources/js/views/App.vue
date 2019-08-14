@@ -1,20 +1,19 @@
 <template>
   <div>
-    <h1>Vue router Demo App</h1>
-
-    <p>
-      <router-link :to="{ name: 'home' }">Home</router-link>
-      <router-link :to="{ name: 'hello' }">Hello World!</router-link>
-      <router-link :to="{ name: 'users.index' }">Users</router-link>
-    </p>
-
-    <div class="container">
+    <Navbar />
+    <div class="container mt-2">
+      <h1>Vue router Demo App</h1>
       <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+import Navbar from '../components/Navbar'
+export default {
+  components: {
+    Navbar
+  }
+}
 </script>
 
